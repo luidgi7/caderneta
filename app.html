@@ -5,11 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Link Manager</title>
   <style>
+    /* --- Variáveis globais para o APP --- */
+    :root {
+      --app-bg: #f0f2f5;
+      --sec-bg: white;
+      --text-color: #1a1a2e;
+      --border-color: #f0f0f0;
+      --input-border: #ddd;
+      --input-bg: white;
+      --table-th-bg: #f8f9fa;
+      --table-th-text: #555;
+      --tab-inactive: #e4e6eb;
+    }
+
+    body.dark-theme {
+      --app-bg: #0f0f1a;
+      --sec-bg: #161625;
+      --text-color: #ffffff;
+      --border-color: #222235;
+      --input-border: #3f3f5a;
+      --input-bg: #1e1e30;
+      --table-th-bg: #1e1e30;
+      --table-th-text: #bbb;
+      --tab-inactive: #222235;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
+    body { font-family: Arial, sans-serif; background: var(--app-bg); min-height: 100vh; color: var(--text-color); transition: background 0.3s, color 0.3s; }
 
     /* NAVBAR */
-    .navbar { background: #1a1a2e; color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .navbar { background: #1a1a2e; color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); }
     .navbar h1 { font-size: 18px; }
     .navbar-right { display: flex; align-items: center; gap: 10px; }
     .badge { background: #e94560; color: white; border-radius: 20px; padding: 3px 10px; font-size: 12px; font-weight: bold; }
@@ -21,14 +46,15 @@
     .main { padding: 16px; max-width: 900px; margin: 0 auto; }
 
     /* SECTION */
-    .section { background: white; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .section { background: var(--sec-bg); border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: background 0.3s; }
     .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-    .section-title { font-size: 18px; font-weight: bold; color: #1a1a2e; }
+    .section-title { font-size: 18px; font-weight: bold; color: var(--text-color); }
 
     /* BUTTONS */
     .btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; transition: opacity 0.2s; }
     .btn:hover { opacity: 0.85; }
     .btn-primary { background: #1a1a2e; color: white; }
+    body.dark-theme .btn-primary { background: #3f3f5a; }
     .btn-success { background: #28a745; color: white; }
     .btn-danger { background: #dc3545; color: white; padding: 5px 10px; font-size: 12px; }
     .btn-edit { background: #ffc107; color: #333; padding: 5px 10px; font-size: 12px; }
@@ -37,14 +63,14 @@
     /* TABLE */
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; min-width: 300px; }
-    th { background: #f8f9fa; color: #555; padding: 10px 8px; text-align: left; font-size: 13px; border-bottom: 2px solid #eee; }
-    td { padding: 10px 8px; border-bottom: 1px solid #f0f0f0; font-size: 14px; vertical-align: middle; }
+    th { background: var(--table-th-bg); color: var(--table-th-text); padding: 10px 8px; text-align: left; font-size: 13px; border-bottom: 2px solid var(--border-color); }
+    td { padding: 10px 8px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; color: var(--text-color); }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fafafa; }
-    a.link-cell { color: #0066cc; word-break: break-all; }
+    tr:hover td { background: rgba(255, 255, 255, 0.03); }
+    a.link-cell { color: #51a2ff; word-break: break-all; }
     td.url-cell { max-width: 180px; }
     a.link-trunc {
-      color: #0066cc;
+      color: #51a2ff;
       display: inline-block;
       max-width: 160px;
       white-space: nowrap;
@@ -56,16 +82,16 @@
 
     /* FORMS */
     .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-    .form-row input, .form-row textarea { flex: 1; min-width: 120px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+    .form-row input, .form-row textarea { flex: 1; min-width: 120px; padding: 10px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); border-radius: 8px; font-size: 14px; }
     .form-row textarea { resize: vertical; min-height: 80px; }
 
     /* CATEGORY */
     .cat-section { margin-bottom: 28px; }
     .cat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
-    .cat-title { font-size: 16px; font-weight: bold; color: #1a1a2e; border-left: 4px solid #e94560; padding-left: 10px; }
+    .cat-title { font-size: 16px; font-weight: bold; color: var(--text-color); border-left: 4px solid #e94560; padding-left: 10px; }
 
     /* TEXTO PUBLICO */
-    .texto-box { width: 100%; min-height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; resize: vertical; font-family: Arial; }
+    .texto-box { width: 100%; min-height: 120px; padding: 12px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); border-radius: 8px; font-size: 15px; resize: vertical; font-family: Arial; }
     .texto-meta { font-size: 12px; color: #999; margin-top: 6px; }
     .texto-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 
@@ -74,32 +100,32 @@
 
     /* ADD CATEGORY FORM */
     .add-form { display: flex; gap: 8px; flex-wrap: wrap; }
-    .add-form input { flex: 1; min-width: 160px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+    .add-form input { flex: 1; min-width: 160px; padding: 10px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); border-radius: 8px; font-size: 14px; }
 
     /* MODAL */
-    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
     .modal-bg.open { display: flex; }
-    .modal { background: white; border-radius: 14px; padding: 24px; width: 100%; max-width: 460px; }
+    .modal { background: var(--sec-bg); color: var(--text-color); border-radius: 14px; padding: 24px; width: 100%; max-width: 460px; border: 1px solid var(--border-color); }
     .modal h3 { margin-bottom: 16px; }
-    .modal input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; margin-bottom: 10px; }
+    .modal input { width: 100%; padding: 10px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); border-radius: 8px; font-size: 15px; margin-bottom: 10px; }
     .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
 
     /* EMPTY */
-    .empty { color: #aaa; font-size: 14px; padding: 12px 0; text-align: center; }
+    .empty { color: #888; font-size: 14px; padding: 12px 0; text-align: center; }
 
     /* PHOTO GALLERY */
     .photo-list { display: flex; flex-direction: column; gap: 10px; }
-    .photo-row { display: flex; align-items: center; gap: 12px; padding: 8px; border: 1px solid #eee; border-radius: 10px; }
-    .photo-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #f0f0f0; }
+    .photo-row { display: flex; align-items: center; gap: 12px; padding: 8px; border: 1px solid var(--border-color); border-radius: 10px; }
+    .photo-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #222; }
     .photo-actions { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
     .upload-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
-    .upload-row input[type=file] { flex: 1; min-width: 160px; font-size: 13px; }
+    .upload-row input[type=file] { flex: 1; min-width: 160px; font-size: 13px; color: var(--text-color); }
     .spinner { font-size: 13px; color: #999; }
 
     /* TOP TABS */
     .top-tabs { display: flex; gap: 6px; padding: 10px 16px 0; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
-    .top-tab { padding: 9px 16px; border: none; border-radius: 10px 10px 0 0; background: #e4e6eb; color: #555; font-weight: bold; cursor: pointer; font-size: 14px; }
-    .top-tab.active { background: white; color: #1a1a2e; box-shadow: 0 -2px 6px rgba(0,0,0,0.05); }
+    .top-tab { padding: 9px 16px; border: none; border-radius: 10px 10px 0 0; background: var(--tab-inactive); color: var(--text-color); opacity: 0.7; font-weight: bold; cursor: pointer; font-size: 14px; }
+    .top-tab.active { background: var(--sec-bg); color: var(--text-color); opacity: 1; box-shadow: 0 -2px 6px rgba(0,0,0,0.1); border: 1px solid var(--border-color); border-bottom: none; }
 
     @media (max-width: 500px) {
       .section { padding: 14px 12px; }
@@ -114,6 +140,7 @@
   <div class="navbar-right">
     <span class="badge" id="modeBadge"></span>
     <span id="navUsername" style="font-size:13px;color:#ccc;"></span>
+    <button class="btn-nav" id="app-theme-toggle" style="margin-right: 5px; font-size: 12px;">🌙 Alternar Tema</button>
     <button class="btn-nav" onclick="logout()">Sair</button>
   </div>
 </nav>
@@ -136,6 +163,23 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Script síncrono inicial para aplicar o tema IMEDIATAMENTE sem flash branco
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-theme');
+  }
+  
+  // Botão interno para também permitir mudar de tema dentro da conta
+  document.getElementById('app-theme-toggle').addEventListener('click', () => {
+    document.body.classList.toggle('dark-theme');
+    if (document.body.classList.contains('dark-theme')) {
+      localStorage.setItem('theme', 'dark');
+    } else {
+      localStorage.setItem('theme', 'light');
+    }
+  });
+</script>
 
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js";
@@ -202,7 +246,7 @@ async function render() {
   }
 }
 
-// ─── PUBLIC VIEW (Vista Pública — para qualquer utilizador) ───────────────────
+// ─── PUBLIC VIEW ───────────────────
 async function renderPublicView(main) {
   const { data: vistaLinks } = await supabase.from('vista_publica').select('*').order('id');
   const vistaSection = document.createElement('div');
@@ -232,9 +276,8 @@ async function renderPublicView(main) {
   renderTextoPublico(main, true);
 }
 
-// ─── PERSONAL AREA (Pessoal — links, fotos, texto sem categorias) ─────────────
+// ─── PERSONAL AREA ─────────────
 async function renderPersonalArea(main, targetUserId, isOwnArea) {
-  // Links pessoais
   const { data: links } = await supabase.from('personal_links').select('*').eq('user_id', targetUserId).order('id');
   const linksSection = document.createElement('div');
   linksSection.className = 'section';
@@ -257,10 +300,7 @@ async function renderPersonalArea(main, targetUserId, isOwnArea) {
     </div>`;
   main.appendChild(linksSection);
 
-  // Fotos pessoais
   await renderPersonalPhotoGallery(main, targetUserId);
-
-  // Texto pessoal
   await renderPersonalTexto(main, targetUserId);
 }
 
@@ -376,7 +416,7 @@ async function renderPersonalTexto(main, targetUserId) {
 
 function personalTextoBoxHtml(n) {
   return `
-    <div class="texto-item" id="personal-texto-item-${n.id}" style="margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid #eee;">
+    <div class="texto-item" id="personal-texto-item-${n.id}" style="margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border-color);">
       <textarea class="texto-box" id="personal-texto-content-${n.id}" placeholder="Escreve aqui...">${n.content || ''}</textarea>
       <div class="texto-meta">${n.updated_at ? `Última edição: ${new Date(n.updated_at).toLocaleString()}` : ''}</div>
       <div class="texto-actions">
@@ -412,14 +452,8 @@ window.deletePersonalTexto = async (id) => {
   document.getElementById(`personal-texto-item-${id}`)?.remove();
 };
 
-// ─── VISTA MODE (legado - mantido para compatibilidade) ───────────────────────
-async function renderVista(main) {
-  await renderPublicView(main);
-}
-
 // ─── ADMIN MODE ───────────────────────────────────────────────────────────────
 async function renderAdmin(main) {
-  // ── CATEGORIAS + LINKS ──
   const { data: cats } = await supabase.from('categories').select('*').order('position');
   const { data: links } = await supabase.from('links').select('*').order('id');
 
@@ -427,7 +461,6 @@ async function renderAdmin(main) {
   catsSection.className = 'section';
   catsSection.innerHTML = `<div class="section-header"><div class="section-title">📁 Categorias & Links</div></div>`;
 
-  // Add category form
   const addCatDiv = document.createElement('div');
   addCatDiv.innerHTML = `
     <div class="add-form" style="margin-bottom:20px;">
@@ -436,7 +469,6 @@ async function renderAdmin(main) {
     </div>`;
   catsSection.appendChild(addCatDiv);
 
-  // Each category
   if (cats && cats.length > 0) {
     cats.forEach(cat => {
       const catLinks = (links || []).filter(l => l.category_id === cat.id);
@@ -475,7 +507,6 @@ async function renderAdmin(main) {
 
   main.appendChild(catsSection);
 
-  // ── VISTA PÚBLICA ──
   const { data: vistaLinks } = await supabase.from('vista_publica').select('*').order('id');
   const vistaSection = document.createElement('div');
   vistaSection.className = 'section';
@@ -500,13 +531,8 @@ async function renderAdmin(main) {
     </div>`;
   main.appendChild(vistaSection);
 
-  // ── GALERIA ADMIN ──
   await renderPhotoGallery(main, 'admin_photos', 'admin-photos', '🔒 Galeria Admin — Fotos', true);
-
-  // ── GALERIA VISTA PÚBLICA ──
   await renderPhotoGallery(main, 'vista_photos', 'vista-photos', '📷 Vista Pública — Fotos', true);
-
-  // ── TEXTO PÚBLICO ──
   renderTextoPublico(main, false);
 }
 
@@ -541,18 +567,12 @@ function vistaRow(l) {
 function escJs(s) { return (s||'').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
 
 function getFaviconUrl(url) {
-  try {
-    const domain = new URL(url).hostname;
-    return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-  } catch (e) {
-    return '';
-  }
+  try { const domain = new URL(url).hostname; return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`; } catch (e) { return ''; }
 }
 
 // ─── GALERIA DE FOTOS ─────────────────────────────────────────────────────────
 async function renderPhotoGallery(main, tableName, bucketName, titleLabel, canManage) {
   const { data: photos } = await supabase.from(tableName).select('*').order('created_at', { ascending: false });
-
   const sec = document.createElement('div');
   sec.className = 'section';
 
@@ -588,41 +608,22 @@ window.uploadPhotos = async (tableName, bucketName) => {
   const input = document.getElementById(`upload-${tableName}`);
   const files = input.files;
   if (!files || files.length === 0) { alert('Escolhe pelo menos uma foto.'); return; }
-
   const spinner = document.getElementById(`spinner-${tableName}`);
   spinner.textContent = 'A carregar...';
-
-  let okCount = 0;
-  let errors = [];
+  let okCount = 0, errors = [];
 
   for (const file of files) {
     const ext = file.name.split('.').pop();
     const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-
     const { error: upErr } = await supabase.storage.from(bucketName).upload(path, file);
-    if (upErr) {
-      console.error('Storage upload error:', upErr);
-      errors.push(`Upload: ${upErr.message}`);
-      continue;
-    }
-
+    if (upErr) { errors.push(`Upload: ${upErr.message}`); continue; }
     const { error: insErr } = await supabase.from(tableName).insert({ file_path: path });
-    if (insErr) {
-      console.error('Table insert error:', insErr);
-      errors.push(`Tabela: ${insErr.message}`);
-      continue;
-    }
-
+    if (insErr) { errors.push(`Tabela: ${insErr.message}`); continue; }
     okCount++;
   }
-
   spinner.textContent = '';
   input.value = '';
-
-  if (errors.length > 0) {
-    alert(`${okCount} foto(s) carregada(s) com sucesso.\n\nErros:\n${errors.join('\n')}`);
-  }
-
+  if (errors.length > 0) alert(`${okCount} foto(s) carregada(s).\n\nErros:\n${errors.join('\n')}`);
   render();
 };
 
@@ -636,9 +637,7 @@ window.downloadPhoto = async (url, filename) => {
     document.body.appendChild(link);
     link.click();
     link.remove();
-  } catch (e) {
-    window.open(url, '_blank');
-  }
+  } catch (e) { window.open(url, '_blank'); }
 };
 
 window.deletePhoto = async (tableName, bucketName, id, filePath) => {
@@ -652,7 +651,6 @@ window.deletePhoto = async (tableName, bucketName, id, filePath) => {
 async function renderTextoPublico(main, vistaMode) {
   const { data } = await supabase.from('texto_publico').select('*').order('created_at', { ascending: true });
   const notes = data || [];
-
   const sec = document.createElement('div');
   sec.className = 'section';
   sec.innerHTML = `
@@ -669,7 +667,7 @@ async function renderTextoPublico(main, vistaMode) {
 
 function textoBoxHtml(n) {
   return `
-    <div class="texto-item" id="texto-item-${n.id}" style="margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid #eee;">
+    <div class="texto-item" id="texto-item-${n.id}" style="margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border-color);">
       <textarea class="texto-box" id="texto-content-${n.id}" placeholder="Escreve aqui...">${n.content || ''}</textarea>
       <div class="texto-meta">${n.updated_at ? `Última edição: ${new Date(n.updated_at).toLocaleString()}` : ''}</div>
       <div class="texto-actions">
@@ -681,7 +679,6 @@ function textoBoxHtml(n) {
 }
 
 // ─── ACTIONS ──────────────────────────────────────────────────────────────────
-
 window.copyToClipboard = (text) => {
   navigator.clipboard.writeText(text).then(() => alert('Copiado!')).catch(() => alert('Erro ao copiar.'));
 };
@@ -780,7 +777,6 @@ window.deleteVistaLink = async (id) => {
   document.getElementById(`vista-row-${id}`)?.remove();
 };
 
-// START
 render();
 </script>
 </body>
