@@ -7,7 +7,7 @@
   <style>
     /* --- Variáveis de Cor (Modo Claro Padrão) --- */
     :root {
-      --bg-body: #1a1a2e; /* Mantive o fundo escuro original que tinhas para o body */
+      --bg-body: #1a1a2e;
       --card-bg: white;
       --text-main: #1a1a2e;
       --text-sub: #888;
@@ -47,7 +47,7 @@
       transition: background 0.3s;
     }
 
-    /* --- Botão União de Temas --- */
+    /* --- Botão unificado de Tema --- */
     .theme-toggle-container {
       width: 100%;
       max-width: 380px;
@@ -139,6 +139,7 @@
     <button class="tab" onclick="switchTab('signup')">Criar Conta</button>
   </div>
 
+  <!-- LOGIN -->
   <div class="panel active" id="panel-login">
     <div class="form-group">
       <label>Username</label>
@@ -151,6 +152,7 @@
     <button class="btn btn-login" onclick="login()">Entrar</button>
   </div>
 
+  <!-- SIGNUP -->
   <div class="panel" id="panel-signup">
     <div class="form-group">
       <label>Username</label>
@@ -170,10 +172,16 @@
   const SUPABASE_URL = "https://dasdhmgqldpqfcxmzgkl.supabase.co";
   const SUPABASE_KEY = "sb_publishable_9MnjCDP_KC7wa_DMom1gsA_DCF65g42";
 
-  // --- Lógica do Botão Dark Mode ---
+  // --- Lógica de Sincronização do Dark Mode ---
   const themeBtn = document.getElementById('theme-btn');
   const themeIcon = document.getElementById('theme-icon');
   const themeText = document.getElementById('theme-text');
+
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-theme');
+    themeIcon.textContent = '☀️';
+    themeText.textContent = 'Modo Claro';
+  }
 
   themeBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
@@ -181,9 +189,11 @@
     if (document.body.classList.contains('dark-theme')) {
       themeIcon.textContent = '☀️';
       themeText.textContent = 'Modo Claro';
+      localStorage.setItem('theme', 'dark');
     } else {
       themeIcon.textContent = '🌙';
       themeText.textContent = 'Modo Escuro';
+      localStorage.setItem('theme', 'light');
     }
   });
 
