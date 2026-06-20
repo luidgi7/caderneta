@@ -279,8 +279,9 @@ async function renderAdmin(main) {
 }
 
 function linkRow(l) {
+  const icon = getFaviconUrl(l.url);
   return `<tr id="link-row-${l.id}">
-    <td>${l.title}</td>
+    <td>${icon ? `<img src="${icon}" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;border-radius:3px;" onerror="this.style.display='none'">` : ''}${l.title}</td>
     <td><a class="link-cell" href="${l.url}" target="_blank">${l.url}</a></td>
     <td>${l.description || '-'}</td>
     <td><div class="actions">
@@ -291,8 +292,9 @@ function linkRow(l) {
 }
 
 function vistaRow(l) {
+  const icon = getFaviconUrl(l.url);
   return `<tr id="vista-row-${l.id}">
-    <td>${l.title}</td>
+    <td>${icon ? `<img src="${icon}" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;border-radius:3px;" onerror="this.style.display='none'">` : ''}${l.title}</td>
     <td><a class="link-cell" href="${l.url}" target="_blank">${l.url}</a></td>
     <td><div class="actions">
       <button class="btn btn-copy btn-sm" onclick="copyToClipboard('${l.url}')">Copiar</button>
@@ -302,6 +304,15 @@ function vistaRow(l) {
 }
 
 function escJs(s) { return (s||'').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+
+function getFaviconUrl(url) {
+  try {
+    const domain = new URL(url).hostname;
+    return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+  } catch (e) {
+    return '';
+  }
+}
 
 // ─── GALERIA DE FOTOS ─────────────────────────────────────────────────────────
 async function renderPhotoGallery(main, tableName, bucketName, titleLabel, canManage) {
@@ -346,18 +357,37 @@ window.uploadPhotos = async (tableName, bucketName) => {
   const spinner = document.getElementById(`spinner-${tableName}`);
   spinner.textContent = 'A carregar...';
 
+  let okCount = 0;
+  let errors = [];
+
   for (const file of files) {
     const ext = file.name.split('.').pop();
     const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
 
     const { error: upErr } = await supabase.storage.from(bucketName).upload(path, file);
-    if (upErr) { console.error(upErr); continue; }
+    if (upErr) {
+      console.error('Storage upload error:', upErr);
+      errors.push(`Upload: ${upErr.message}`);
+      continue;
+    }
 
-    await supabase.from(tableName).insert({ file_path: path });
+    const { error: insErr } = await supabase.from(tableName).insert({ file_path: path });
+    if (insErr) {
+      console.error('Table insert error:', insErr);
+      errors.push(`Tabela: ${insErr.message}`);
+      continue;
+    }
+
+    okCount++;
   }
 
   spinner.textContent = '';
   input.value = '';
+
+  if (errors.length > 0) {
+    alert(`${okCount} foto(s) carregada(s) com sucesso.\n\nErros:\n${errors.join('\n')}`);
+  }
+
   render();
 };
 
@@ -494,3 +524,4 @@ render();
 </script>
 </body>
 </html>
+
