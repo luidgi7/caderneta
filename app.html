@@ -124,8 +124,14 @@
 
     /* TOP TABS */
     .top-tabs { display: flex; gap: 6px; padding: 10px 16px 0; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
-    .top-tab { padding: 9px 16px; border: none; border-radius: 10px 10px 0 0; background: var(--tab-inactive); color: var(--text-color); opacity: 0.7; font-weight: bold; cursor: pointer; font-size: 14px; }
-    .top-tab.active { background: var(--sec-bg); color: var(--text-color); opacity: 1; box-shadow: 0 -2px 6px rgba(0,0,0,0.1); border: 1px solid var(--border-color); border-bottom: none; }
+    .top-tab { padding: 9px 16px; border: none; border-radius: 10px 10px 0 0; background: var(--tab-inactive); color: var(--text-color); opacity: 0.7; font-weight: bold; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+    .top-tab:hover { opacity: 1; }
+    
+    /* --- Cores das Abas Ativas Dinâmicas --- */
+    .top-tab.active.tab-public { background: #0066cc !important; color: white !important; opacity: 1; box-shadow: 0 -2px 6px rgba(0,102,204,0.3); border: 1px solid #0055b3; border-bottom: none; }
+    .top-tab.active.tab-personal { background: #28a745 !important; color: white !important; opacity: 1; box-shadow: 0 -2px 6px rgba(40,167,69,0.3); border: 1px solid #218838; border-bottom: none; }
+    .top-tab.active.tab-admin { background: #8a2be2 !important; color: white !important; opacity: 1; box-shadow: 0 -2px 6px rgba(138,43,226,0.3); border: 1px solid #721cbe; border-bottom: none; }
+    .top-tab.active.tab-user { background: #e94560 !important; color: white !important; opacity: 1; box-shadow: 0 -2px 6px rgba(233,69,96,0.3); border: 1px solid #d2334e; border-bottom: none; }
 
     @media (max-width: 500px) {
       .section { padding: 14px 12px; }
@@ -206,15 +212,15 @@ let allUsers = [];
 async function renderTabs() {
   const tabsDiv = document.getElementById('topTabs');
   let tabsHtml = `
-    <button class="top-tab ${currentTab==='public'?'active':''}" onclick="switchTab('public')">📋 Vista Pública</button>
-    <button class="top-tab ${currentTab==='personal'?'active':''}" onclick="switchTab('personal')">👤 Pessoal</button>`;
+    <button class="top-tab ${currentTab==='public'?'active tab-public':''}" onclick="switchTab('public')">📋 Vista Pública</button>
+    <button class="top-tab ${currentTab==='personal'?'active tab-personal':''}" onclick="switchTab('personal')">👤 Pessoal</button>`;
 
   if (isAdmin) {
-    tabsHtml += `<button class="top-tab ${currentTab==='admin'?'active':''}" onclick="switchTab('admin')">🛠️ Admin</button>`;
+    tabsHtml += `<button class="top-tab ${currentTab==='admin'?'active tab-admin':''}" onclick="switchTab('admin')">🛠️ Admin</button>`;
     const { data: users } = await supabase.from('users').select('id, username').order('username');
     allUsers = users || [];
     allUsers.forEach(u => {
-      tabsHtml += `<button class="top-tab ${currentTab===('user_'+u.id)?'active':''}" onclick="switchTab('user_${u.id}')">👤 ${u.username}</button>`;
+      tabsHtml += `<button class="top-tab ${currentTab===('user_'+u.id)?'active tab-user':''}" onclick="switchTab('user_${u.id}')">👤 ${u.username}</button>`;
     });
   }
 
@@ -391,7 +397,7 @@ window.uploadPersonalPhotos = async (targetUserId) => {
 
 window.deletePersonalPhoto = async (id, filePath) => {
   if (!confirm('Apagar esta foto?')) return;
-  await supabase.storage.from('personal-photos').remove([filePath]);
+  await supabase.from('personal-photos').remove([filePath]);
   await supabase.from('personal_photos').delete().eq('id', id);
   document.getElementById(`photo-personal_photos-${id}`)?.remove();
 };
@@ -559,7 +565,7 @@ function vistaRow(l) {
     <td class="url-cell"><a class="link-trunc" href="${l.url}" target="_blank" title="${l.url}">${l.url}</a></td>
     <td><div class="actions">
       <button class="btn btn-copy btn-sm" onclick="copyToClipboard('${escJs(l.url)}')">Copiar</button>
-      <button class="btn btn-danger" onclick="deleteVistaLink(${l.id})">Apagar</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteVistaLink(${l.id})">Apagar</button>
     </div></td>
   </tr>`;
 }
