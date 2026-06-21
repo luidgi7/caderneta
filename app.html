@@ -171,12 +171,9 @@
 </div>
 
 <script>
-  // Script síncrono inicial para aplicar o tema IMEDIATAMENTE sem flash branco
   if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark-theme');
   }
-  
-  // Botão interno para também permitir mudar de tema dentro da conta
   document.getElementById('app-theme-toggle').addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
@@ -206,7 +203,7 @@ document.getElementById('navUsername').textContent = user.username;
 window.logout = () => { localStorage.removeItem('user'); window.location.href = 'index.html'; };
 
 // ─── TAB STATE ────────────────────────────────────────────────────────────────
-let currentTab = 'public'; // 'public' | 'personal' | 'admin' | {userId}
+let currentTab = 'public';
 let allUsers = [];
 
 async function renderTabs() {
@@ -395,11 +392,16 @@ window.uploadPersonalPhotos = async (targetUserId) => {
   render();
 };
 
+/* CORREÇÃO DO BOTÃO DE APAGAR IMAGEM PESSOAL */
 window.deletePersonalPhoto = async (id, filePath) => {
-  if (!confirm('Apagar esta foto?')) return;
-  await supabase.from('personal-photos').remove([filePath]);
-  await supabase.from('personal_photos').delete().eq('id', id);
+  if (!confirm('Apagar esta foto pessoal?')) return;
+  const { error: storageErr } = await supabase.storage.from('personal-photos').remove([filePath]);
+  if (storageErr) { console.error('Erro storage:', storageErr); }
+  const { error: dbErr } = await supabase.from('personal_photos').delete().eq('id', id);
+  if (dbErr) { alert('Erro ao apagar registo da foto.'); console.error(dbErr); return; }
+  
   document.getElementById(`photo-personal_photos-${id}`)?.remove();
+  render();
 };
 
 async function renderPersonalTexto(main, targetUserId) {
@@ -576,7 +578,7 @@ function getFaviconUrl(url) {
   try { const domain = new URL(url).hostname; return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`; } catch (e) { return ''; }
 }
 
-// ─── GALERIA DE FOTOS ─────────────────────────────────────────────────────────
+// ─── GALERIA DE FOTOS PÚBLICAS/ADMIN ──────────────────────────────────────────
 async function renderPhotoGallery(main, tableName, bucketName, titleLabel, canManage) {
   const { data: photos } = await supabase.from(tableName).select('*').order('created_at', { ascending: false });
   const sec = document.createElement('div');
@@ -603,7 +605,7 @@ async function renderPhotoGallery(main, tableName, bucketName, titleLabel, canMa
     ${canManage ? `
       <div class="upload-row">
         <input type="file" id="upload-${tableName}" accept="image/*" multiple>
-        <button class="btn btn-success btn-sm" onclick="uploadPhotos('${tableName}','${bucketName}')">Carregar</button>
+        <button class="btn btn-success btn-sm" onclick="uploadPhotos('${tableName}','var(--sec-bg)')">Carregar</button>
         <span class="spinner" id="spinner-${tableName}"></span>
       </div>` : ''}
   `;
@@ -651,6 +653,7 @@ window.deletePhoto = async (tableName, bucketName, id, filePath) => {
   await supabase.storage.from(bucketName).remove([filePath]);
   await supabase.from(tableName).delete().eq('id', id);
   document.getElementById(`photo-${tableName}-${id}`)?.remove();
+  render();
 };
 
 // ─── TEXTO PÚBLICO ────────────────────────────────────────────────────────────
